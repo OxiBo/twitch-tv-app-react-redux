@@ -47,7 +47,8 @@ export const handleClickReducer = (state = handleClickDefaultState, action) => {
 const searchUserDefaultState = {
   input: "",
   searchResult: {},
-  isSearchResultLoading: true
+  isSearchResultLoading: true,
+  typeAheadSuggestions: []
 };
 
 export const searchUserReducer = (state = searchUserDefaultState, action) => {
@@ -69,6 +70,11 @@ export const searchUserReducer = (state = searchUserDefaultState, action) => {
         isSearchResultLoading: false,
         input: ""
       };
+      case "TYPEAHEAD_SUGGESTIONS":
+        return {
+          ...state,
+          typeAheadSuggestions: action.payload
+        };
     default:
       return state;
   }
