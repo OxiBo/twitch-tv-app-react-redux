@@ -1,9 +1,22 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { setSearchInput, searchUser } from "../actions";
-// import { typeahead } from "../helpers/typeahead";
+import { setSearchInput, searchUser, typeAheadSearch } from "../actions";
+
 
 class SearchBar extends Component {
+
+  componentDidMount() {
+    document.body.addEventListener("click", e => {
+      // e.stopPropagation();
+      if (document.querySelector(".suggestions")) {
+        document.querySelector(".suggestions").classList.add("typeAhead");
+        document.querySelector(".typeAhead").classList.remove("suggestions");
+        // document.getElementById('typeAheadOptions').classList.add("typeAhead")
+      }
+    });
+  }
+
+
   onFormSubmit = event => {
     event.preventDefault();
     this.props.searchUser(this.props.input);
@@ -11,6 +24,7 @@ class SearchBar extends Component {
 
   handleInput = event => {
     this.props.setSearchInput(event.target.value);
+    this.props.typeAheadSearch(event.target.value);
 
     /*
 
@@ -31,7 +45,30 @@ class SearchBar extends Component {
     */
   };
 
+  renderTypeAheadSuggestions = () => {
+    const { typeAheadSuggestions } = this.props;
+
+    if (typeAheadSuggestions) {
+      return typeAheadSuggestions.map(user => (
+        <li key={user} onClick={this.chooseSuggestion}>
+          {user}
+        </li>
+      ));
+    }
+  };
+
+  chooseSuggestion = e => {
+    e.stopPropagation();
+    this.props.setSearchInput(e.target.innerHTML);
+    this.props.typeAheadSearch();
+  };
+
+
   render() {
+    const typeAheadStyles =
+      this.props.typeAheadSuggestions.length > 0 && this.props.searchUser !== ""
+        ? "suggestions"
+        : "typeAhead";
     return (
       <div id="searchForm">
         <form
@@ -49,6 +86,9 @@ class SearchBar extends Component {
             autoComplete="off"
             onChange={this.handleInput}
           />
+          <ul className={typeAheadStyles}>
+            {this.renderTypeAheadSuggestions()}
+          </ul>
         </form>
       </div>
     );
@@ -57,11 +97,12 @@ class SearchBar extends Component {
 
 const mapStateToProps = state => {
   return {
-    input: state.searchUser.input
+    input: state.searchUser.input,
+    typeAheadSuggestions: state.searchUser.typeAheadSuggestions
   };
 };
 
 export default connect(
   mapStateToProps,
-  { setSearchInput, searchUser }
+  { setSearchInput, searchUser, typeAheadSearch }
 )(SearchBar);
