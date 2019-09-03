@@ -1,5 +1,6 @@
 import userInfo from "../api/twitchTV";
 import getUsersInfo from "../helpers/getUsersInfo";
+import typeAheadMatches from "../helpers/typeAhead_handMade";
 
 export const showSpinner = () => {
   return {
@@ -42,4 +43,10 @@ export const searchUser = user => async dispatch => {
   dispatch(showSearchSpinner());
   const response = await userInfo(user);
   dispatch({ type: "SEARCH_USER", payload: response });
+};
+
+
+export const typeAheadSearch = wordToSearch =>  dispatch => {
+  const suggestions = wordToSearch ? typeAheadMatches(wordToSearch) : [];
+  dispatch({ type: "TYPEAHEAD_SUGGESTIONS", payload: suggestions });
 };
